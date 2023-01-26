@@ -12,7 +12,12 @@ Code is provided for:
 - camera matrices
 - visualization
 
+![SFM_Example_views](https://user-images.githubusercontent.com/46606255/214897260-42b68d5e-c419-479c-b866-006c78589045.PNG)
+*Two Undistorted Views obtained from: https://www.mathworks.com/help/vision/ug/structure-from-motion-from-two-views.html*
+
 ![SFM_Example](https://user-images.githubusercontent.com/46606255/214894796-0a80a275-3e02-4100-95b7-967c3f74d45d.PNG)
+
+*Point cloud obtained from above views with camera positions*
 
 # Requirements
 **Not hard version requirements, just what I used.**
