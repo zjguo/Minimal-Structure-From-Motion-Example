@@ -29,4 +29,6 @@ Code is provided for:
 # Usage
 python main.py
 
+*Might take a while. If taking too long, reduce number of detected keypoints in applications/sfm.py
+
 
