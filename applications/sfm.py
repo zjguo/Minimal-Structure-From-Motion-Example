@@ -21,7 +21,7 @@ class SFM():
         prev_frame = next(self.frames)
         curr_frame = next(self.frames)
         current_camera_extrinsic = CameraExtrinsics(np.zeros((3,1)), np.diag(np.ones(3,)))
-        while(prev_frame is not None and curr_frame is not None):
+        if(prev_frame is not None and curr_frame is not None):
 
             # get matched points
             kp1, kp2, matches = detect_and_match_pair(prev_frame, curr_frame, 2000)
