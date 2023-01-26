@@ -26,4 +26,7 @@ Code is provided for:
 - numpy
 - pyplot for visualization
 
+# Usage
+python main.py
+
 
