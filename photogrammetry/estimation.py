@@ -159,15 +159,15 @@ def get_realizable_relpose_from_essential_matrix(
     # triangulate points with possible cameras and check if points are in front of cameras
     num_points_behind_either_camera = []
     for i in range(len(possible_cameras1)):
-        world_points, valid_world_point_indices, _ = triangulate_world_points(points1, 
+        world_points_wrt_camera1, valid_world_point_indices, _ = triangulate_world_points(points1, 
                                                       points2, 
                                                       possible_cameras1[i], 
                                                       possible_cameras2[i],
                                                       triangulate_3D_midpoint,
-                                                      0.1)
-        world_points = world_points[:, valid_world_point_indices]
-        world_points_wrt_camera2 = possible_cameras2[i].rotation_matrix.T @ (world_points + possible_cameras2[i].translation)
-        num_points_behind_either_camera.append(np.sum(world_points[2,:] < 0 | (world_points_wrt_camera2[2,:] < 0)))
+                                                      1)
+        world_points_wrt_camera1 = world_points_wrt_camera1[:, valid_world_point_indices]
+        world_points_wrt_camera2 = possible_cameras2[i].rotation_matrix @ (world_points_wrt_camera1 - possible_cameras2[i].translation)
+        num_points_behind_either_camera.append(np.sum(world_points_wrt_camera1[2,:] < 0 | (world_points_wrt_camera2[2,:] < 0)))
 
     best_index = np.argmin(num_points_behind_either_camera)
     best_rel_translation = possible_cameras2[best_index].translation

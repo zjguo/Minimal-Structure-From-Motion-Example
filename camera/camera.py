@@ -13,12 +13,15 @@ class Camera():
         self.translation = camera_extrinsincs.translation
         self.rotation_matrix = camera_extrinsincs.rotation
         
+    def get_projection_matrix(self):
+        
+        translation_matrix = np.array([[1, 0, 0, -self.translation[0].item()],
+                                       [0, 1, 0, -self.translation[1].item()],
+                                       [0, 0, 1, -self.translation[2].item()]])
+        return self.K @ self.rotation_matrix @ translation_matrix
+
     def direct_linear_transform(self, 
                                 homo_point_coords : NDArray[Shape["4,1"], Float]) -> NDArray[Shape["4,1"], Float]:
 
-        translation_matrix = np.array([[1, 0, 0, -self.translation[0]],
-                                       [0, 1, 0, -self.translation[1]],
-                                       [0, 0, 1, -self.translation[2]]])
-
-        return self.K @ self.rotation_matrix @ translation_matrix @ homo_point_coords
+        return self.get_projection_matrix() @ homo_point_coords
         

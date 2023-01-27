@@ -24,7 +24,10 @@ class SFM():
         if(prev_frame is not None and curr_frame is not None):
 
             # get matched points
-            kp1, kp2, matches = detect_and_match_pair(prev_frame, curr_frame, 2000)
+            kp1, kp2, matches = detect_and_match_pair(prev_frame, 
+                                                      curr_frame,
+                                                      n_features=3000,
+                                                      lowes_ratio=1)
             matched_points1 = get_matched_point_matrix(kp1, [i.queryIdx for i in matches])
             matched_points2 = get_matched_point_matrix(kp2, [i.trainIdx for i in matches])
 
@@ -37,16 +40,25 @@ class SFM():
             # update camera parameters with relative pose
             prev_camera_extrinsic = copy.deepcopy(current_camera_extrinsic)
             camera1 = Camera(self.camera_intrinsic, prev_camera_extrinsic)
-            current_camera_extrinsic.translation += t
+            current_camera_extrinsic.translation += current_camera_extrinsic.rotation.T @ t
             current_camera_extrinsic.rotation = R @ current_camera_extrinsic.rotation
             camera2 = Camera(self.camera_intrinsic, current_camera_extrinsic)
 
             # detect and match more points for coverage and triangulate to find 3D points
-            kp1, kp2, matches = detect_and_match_pair(prev_frame, curr_frame, 100000)
+            kp1, kp2, matches = detect_and_match_pair(prev_frame, 
+                                                      curr_frame,
+                                                      n_features=100000,
+                                                      fast_threshold=0,
+                                                      score_type=0,
+                                                      lowes_ratio=1)
             matched_points1 = get_matched_point_matrix(kp1, [i.queryIdx for i in matches])
             matched_points2 = get_matched_point_matrix(kp2, [i.trainIdx for i in matches])
-            world_points, valid_world_point_indices, score  = triangulate_world_points(matched_points1, matched_points2, camera1, camera2, triangulate_3D_midpoint, 100)
-            world_points = world_points[:,valid_world_point_indices]
+            world_points, valid_world_point_indices, score  = triangulate_world_points(matched_points1, matched_points2, camera1, camera2, triangulate_3D_midpoint, 10)
+            world_points_wrt_camera1 = camera1.rotation_matrix.T @ (world_points - camera1.translation)
+            world_points_wrt_camera2 = camera2.rotation_matrix.T @ (world_points - camera2.translation)
+            world_points_indicies_in_front_of_both_cameras=  world_points_wrt_camera1[2,:] > 0 | (world_points_wrt_camera2[2,:] > 0)
+            valid_world_point_indices = valid_world_point_indices & world_points_indicies_in_front_of_both_cameras
+            world_points = world_points[:, valid_world_point_indices]
             
             # draw point cloud
             vis = PyplotVisualizer(5)
